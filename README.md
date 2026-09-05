@@ -12,7 +12,7 @@ OpenCV is used only for image I/O and colour conversion (`imread`, `imwrite`,
 
 | Triangulation | Meshless |
 |---|---|
-| ![Triangulation morph](results/triangulation.gif) | ![Meshless morph](results/meshless.gif) |
+| <img src="results/triangulation.gif" width="100%" alt="Triangulation morph"> | <img src="results/meshless.gif" width="100%" alt="Meshless morph"> |
 
 ## How it works
 
