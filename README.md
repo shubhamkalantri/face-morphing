@@ -35,8 +35,8 @@ colours by `α`.
 ### Part 1 — Delaunay triangulation
 
 <p align="center">
-  <img src="results/source_triangulation.png" width="20%" alt="Source triangulation">
-  <img src="results/destination_triangulation.png" width="40%" alt="Destination triangulation">
+  <img src="results/source_triangulation.png" width="45%" alt="Source triangulation">
+  <img src="results/destination_triangulation.png" width="45%" alt="Destination triangulation">
 </p>
 
 A Delaunay triangulation is computed once and reused for every frame, so
