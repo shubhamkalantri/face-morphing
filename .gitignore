@@ -1,0 +1,24 @@
+# dlib predictor model (~100 MB) - fetch with scripts/download_predictor.sh
+models/
+*.dat
+*.dat.bz2
+
+# Generated intermediate frames
+frames/
+
+# Generated video; the committed GIFs in results/ are the showcase
+results/*.mp4
+
+# Submission archives
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

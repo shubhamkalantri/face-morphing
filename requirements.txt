@@ -1,0 +1,10 @@
+numpy
+scipy
+pandas
+opencv-python
+matplotlib
+tqdm
+
+# Only needed by detect_landmarks.py; the landmark CSVs are committed, so the
+# morphing scripts run without it.
+# dlib
