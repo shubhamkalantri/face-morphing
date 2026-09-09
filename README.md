@@ -10,6 +10,15 @@ test, the bilinear resampling and the blending are all written out directly.
 OpenCV is used only for image I/O and colour conversion (`imread`, `imwrite`,
 `cvtColor`, `resize`).
 
+The two faces are Rembrandt self-portraits roughly two decades apart — the
+morph is an ageing sequence rather than an arbitrary pair. Both are public
+domain, via Wikimedia Commons:
+[*Self-Portrait*, c. 1659](https://commons.wikimedia.org/wiki/File:Rembrandt_van_Rijn_-_Self-Portrait_-_Google_Art_Project.jpg)
+and [*Self-Portrait with Two Circles*, c. 1665](https://commons.wikimedia.org/wiki/File:Rembrandt_Self-portrait_(Kenwood).jpg).
+Each was rotated and scaled so the eyes land on the same axis at the same
+separation before cropping to 512×512, which is what keeps the morph reading as
+one face changing rather than two sliding past each other.
+
 | Triangulation | Meshless |
 |---|---|
 | <img src="results/triangulation.gif" width="256" height="256" alt="Triangulation morph"> | <img src="results/meshless.gif" width="256" height="256" alt="Meshless morph"> |
@@ -46,12 +55,14 @@ on either face: a mesh that is Delaunay for the source is not Delaunay for the
 destination, so triangulating the source alone makes quality asymmetric — best
 at `α = 0` and degraded at `α = 1`. Both overlays above draw this shared mesh.
 
-Some folding is unavoidable on this pair regardless: the inner-mouth landmarks
-62/65/66 and 53/54/64 reverse their own orientation between the two faces, so
-any triangle spanning them flips sign partway through the morph, and two of
-them collapse to zero area exactly at frame 40. Collapsed triangles are
-skipped rather than fed to the affine solve, which would otherwise return
-entries of order 1e16 without raising.
+This pair triangulates into 142 triangles, and none of them fold: every
+triangle keeps its orientation for the whole morph, and the smallest area any
+of them reaches is about 4 px². That is a property of the pair, not a
+guarantee. Two faces whose landmarks reverse their relative order — inner-mouth
+points are the usual culprits — produce a triangle that flips sign partway
+through and passes through zero area on the way. A degenerate triangle fed to
+the affine solve returns entries of order 1e16 without raising, so triangles
+below `MIN_TRIANGLE_AREA` are skipped instead.
 
 An affine map has six unknowns, and three vertex correspondences give six
 equations, so each triangle's transform is an exact linear solve:
@@ -151,6 +162,11 @@ python detect_landmarks.py --plot-dir results
 
 Replace `data/source.jpg` and `data/destination.jpg` with your own 512×512
 faces first. Detection takes the first face found in each image.
+
+Leave the face some margin in the frame. dlib extrapolates jaw landmarks past
+the silhouette, so a tight crop can put them outside the image, and `morph.py`
+rejects landmark sets that fall outside the working resolution rather than
+silently clamping them.
 
 ## Layout
 
