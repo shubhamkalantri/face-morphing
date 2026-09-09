@@ -125,6 +125,7 @@ pip install -r requirements.txt
 
 python morph.py --method triangulation     # 512×512, ~0.16 s/frame
 python morph.py --method meshless          # 256×256, ~0.19 s/frame
+python morph.py --method meshless --size 512   # ~0.7 s/frame, ~36 s in total
 ```
 
 Frames are written to `frames/<method>/` as lossless PNG (frame 0 is the
@@ -133,17 +134,38 @@ source image bit for bit) and the GIF and MP4 to `results/`.
 At `α = 0` the morph reproduces the source image exactly, and at `α = 1` the
 destination image exactly, for both methods.
 
-The committed showcase GIFs are encoded at 256px to keep the repository small:
+The committed showcase GIFs are encoded at 256px:
 
 ```bash
 python morph.py --method triangulation --gif-width 256
+```
+
+They are around 1.4 MB each, which is large for a README. Oil paint is the
+worst case for GIF: the palette is only 96 colours, so the dithering pattern
+differs everywhere between consecutive frames, and the inter-frame compression
+GIF relies on has almost nothing to work with. The same sequence as H.264 is
+about a quarter of the size at twice the resolution — but GitHub strips
+`<video>` from a README and will not play a repository-relative MP4, so an
+animated GIF is the only thing that moves on this page. The MP4s in `results/`
+are the better artifact everywhere else.
+
+To trade smoothness for bytes, drop the width and the palette rather than the
+frame rate:
+
+```bash
+# 27 frames at 224px on a 64-colour palette: ~570 KB instead of ~1.4 MB
+FILTER="fps=13,scale=224:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=64:stats_mode=diff[p];[s1][p]paletteuse=dither=none"
+ffmpeg -framerate 25 -i frames/triangulation/frame_%d.png -vf "$FILTER" results/triangulation.gif
 ```
 
 ```
 --size N        working resolution
 --frames N      number of frames in the morph (default 51)
 --falloff A     meshless distance falloff exponent (default 2.0)
---fps N         frame rate of the video and the GIF (default 25)
+--fps N         playback rate of the video and the GIF (default 25). This sets
+                the input and output rate together, so it changes how fast the
+                morph plays, not how many frames it contains — use --frames for
+                that. Lowering it will not shrink the GIF.
 --gif-width N   GIF width in pixels (default: the working resolution)
 --no-video      skip the MP4
 --no-gif        skip the GIF
